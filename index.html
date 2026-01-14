@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Calculator Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: #1a237e;
+            width: 100%;
+            padding: 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            background-color: transparent;
+            color: #c5cae9;
+            border: none;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 4px solid transparent;
+            transition: all 0.3s;
+            flex-grow: 1;
+            max-width: 200px;
+        }
+
+        nav button:hover { color: white; background-color: rgba(255,255,255,0.1); }
+        nav button.active { color: white; border-bottom: 4px solid #ffca28; }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            width: 90%;
+            max-width: 500px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        h2 { text-align: center; color: #333; margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+
+        .input-group { margin-bottom: 15px; }
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .input-half { flex: 1; }
+
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #444; }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+
+        .quick-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .quick-btn {
+            flex: 1;
+            min-width: 50px;
+            padding: 8px;
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1565c0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .quick-btn:hover { background-color: #bbdefb; }
+
+        button.calculate-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+        button.calculate-btn:hover { background-color: #0d47a1; }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #1a237e;
+            border-radius: 4px;
+            display: none;
+        }
+        .result p { margin: 8px 0; color: #333; font-size: 16px; }
+        .result strong { color: #d32f2f; font-size: 19px; }
+
+        .note { font-size: 13px; color: #555; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc; line-height: 1.6; }
+        .small-text { font-size: 13px; color: #555; font-weight: normal; }
+
+        /* สไตล์สำหรับปุ่มลิงก์ภายนอก */
+        .external-link-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #ff9800; /* สีส้ม PEA */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .external-link-btn:hover {
+            background-color: #f57c00;
+        }
+
+        /* สไตล์สำหรับกล่องเครดิต */
+        .credit-box {
+            margin-top: 12px;
+            padding: 10px;
+            border-top: 1px dashed #ccc;
+            color: #1a237e;
+            font-weight: 600;
+            text-align: center;
+            background-color: #e8eaf6;
+            border-radius: 5px;
+        }
+
+        footer {
+            margin-top: auto;
+            margin-bottom: 20px;
+            color: #777;
+            font-size: 14px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <button onclick="openTab('ampToUnit')" id="btn-ampToUnit" class="active">1. แปลง Amp</button>
+        <button onclick="openTab('solarRoof')" id="btn-solarRoof">2. Solar Roof</button>
+        <button onclick="openTab('voltageDrop')" id="btn-voltageDrop" style="display:none;">3. V-Drop</button>
+    </nav>
+
+    <div class="container">
+        
+        <div id="ampToUnit" class="tab-content active">
+            <h2>ประเมินหน่วยการใช้ไฟฟ้า </h2>
+            
+            <label>เลือกพิกัด:</label>
+            <div class="quick-btn-group">
+                <button class="quick-btn" onclick="setAmp(1)">1A</button>
+                <button class="quick-btn" onclick="setAmp(5)">5A</button>
+                <button class="quick-btn" onclick="setAmp(15)">15A</button>
+                <button class="quick-btn" onclick="setAmp(30)">30A</button>
+            </div>
+
+            <div class="input-row">
+                <div class="input-half">
+                    <label>P.F. (Power Factor):</label>
+                    <input type="number" id="inputPF" value="0.85" step="0.01" oninput="reCalcAll()">
+                </div>
+                <div class="input-half">
+                    <label>L.F. (Load Factor):</label>
+                    <input type="number" id="inputLF" value="0.5" step="0.1" oninput="reCalcAll()">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>หรือ เลือกขนาดหม้อแปลง:</label>
+                <select id="trafoSelect" onchange="selectTrafo()">
+                    <option value="0">-- ไม่เลือก (กรอกเอง) --</option>
+                    <optgroup label="1 เฟส (Single Phase)">
+                        <option value="30_1">30 kVA (1 Phase)</option>
+                    </optgroup>
+                    <optgroup label="3 เฟส (3 Phase)">
+                        <option value="50_3">50 kVA</option>
+                        <option value="100_3">100 kVA</option>
+                        <option value="160_3">160 kVA</option>
+                        <option value="250_3">250 kVA</option>
+                        <option value="315_3">315 kVA</option>
+                        <option value="400_3">400 kVA</option>
+                        <option value="500_3">500 kVA</option>
+                        <option value="630_3">630 kVA</option>
+                        <option value="800_3">800 kVA</option>
+                        <option value="1000_3">1000 kVA</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>กระแสไฟฟ้า (Amps/Phase):</label>
+                <input type="number" id="ampInput" value="1" oninput="calculateAmp()">
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateAmp()">คำนวณ</button>
+
+            <div id="result-amp" class="result" style="display:block;">
+                <p>⚡ หน่วยการใช้ไฟ:</p>
+                <p>• <strong><span id="ampResultPhase">0</span> หน่วย/เดือน/เฟส</strong></p>
+                
+                <div id="threePhaseSummary" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid #ddd;">
+                    <p>⚡ รวม 3 เฟส (โดยประมาณ):</p>
+                    <p style="color:#1a237e;"><strong><span id="ampResultTotal">0</span> หน่วย/เดือน</strong></p>
+                </div>
+
+                <div class="note">
+                    *: 1A ≈ 70 หน่วย (ปรับตาม PF, LF)<br>
+                    *: <strong>10 kVA ≈ 3,000 หน่วย</strong> (ปรับตาม PF, LF)<br>
+                    
+                    <div class="credit-box">
+                        "แนวทางประเมินที่สะดวก รวดเร็ว และเข้าใจง่าย<br>
+                        โดยท่านทรงศักดิ์ พิกุลทอง (ผชก.ฉ.1)"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="solarRoof" class="tab-content">
+            <h2>ประเมิน Solar Rooftop</h2>
+            
+            <label>เลือกขนาดติดตั้ง (kW):</label>
+            <div class="quick-btn-group">
+                <button class="quick-btn" onclick="setSolar(1)">1kW</button>
+                <button class="quick-btn" onclick="setSolar(3)">3kW</button>
+                <button class="quick-btn" onclick="setSolar(5)">5kW</button>
+                <button class="quick-btn" onclick="setSolar(10)">10kW</button>
+                <button class="quick-btn" onclick="setSolar(20)">20kW</button>
+            </div>
+
+            <div class="input-group">
+                <label>ขนาดติดตั้ง (kW):</label>
+                <input type="number" id="solarSize" value="1" oninput="calculateSolar()">
+            </div>
+            <button class="calculate-btn" onclick="calculateSolar()">คำนวณ</button>
+
+            <div id="result-solar" class="result" style="display:block;">
+                <p>☀️ Peak Sun Hour: <strong>4 ชั่วโมง/วัน</strong></p>
+                <hr style="border:0; border-top:1px solid #ddd; margin:10px 0;">
+                
+                <p>⚡ ผลิตไฟได้ (วัน): <strong id="solarDay">4</strong> หน่วย</p>
+                <p>⚡ ผลิตไฟได้ (เดือน): <strong id="solarMonth">120</strong> หน่วย</p>
+                <p>
+                    💰 ลดค่าไฟได้เดือนละ: <strong id="solarMoney">500</strong> บาท <br>
+                    <span class="small-text" style="color:#e65100;">(*คำนวณรวม Loss ในระบบแล้ว 1kW ลดได้ ~500 บาท)</span>
+                </p>
+
+                <a href="https://peasolar.pea.co.th/our-products/" target="_blank" class="external-link-btn">
+                    ดูผลิตภัณฑ์ PEA Solar คลิกที่นี่
+                </a>
+
+                <div class="note">
+                    <div class="credit-box">
+                        "แนวทางประเมินที่สะดวก รวดเร็ว และเข้าใจง่าย<br>
+                        โดยท่านทรงศักดิ์ พิกุลทอง (ผชก.ฉ.1)"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="voltageDrop" class="tab-content">
+            <h2>คำนวณ Voltage Drop (อยู่ระหว่างปรับปรุงโปรดตรวจสอบความถูกต้องอีกครั้ง)</h2>
+            
+            <div class="input-group">
+                <label>แรงดันต้นทาง (Source Voltage):</label>
+                <input type="number" id="vd_source" value="230" placeholder="เช่น 230 หรือ 400" oninput="calculateVDrop()">
+            </div>
+
+            <div class="input-group">
+                <label>ชนิดตัวนำ:</label>
+                <select id="conductorType" onchange="calculateVDrop()">
+                    <option value="Cu">ทองแดง (Copper)</option>
+                    <option value="Al">อลูมิเนียม (Aluminum)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>กระแสไฟฟ้า (Amps):</label>
+                <input type="number" id="vd_current" placeholder="เช่น 15" oninput="calculateVDrop()">
+            </div>
+            <div class="input-group">
+                <label>ความยาวสาย (เมตร):</label>
+                <input type="number" id="vd_distance" placeholder="ระยะทางเดินสาย" oninput="calculateVDrop()">
+            </div>
+            <div class="input-group">
+                <label>ขนาดสายไฟ (sq.mm):</label>
+                <select id="vd_cableSize" onchange="calculateVDrop()">
+                    <option value="1">1 sq.mm</option>
+                    <option value="1.5">1.5 sq.mm</option>
+                    <option value="2.5" selected>2.5 sq.mm</option>
+                    <option value="4">4 sq.mm</option>
+                    <option value="6">6 sq.mm</option>
+                    <option value="10">10 sq.mm</option>
+                    <option value="16">16 sq.mm</option>
+                    <option value="25">25 sq.mm</option>
+                    <option value="35">35 sq.mm</option>
+                    <option value="50">50 sq.mm</option>
+                    <option value="70">70 sq.mm</option>
+                    <option value="95">95 sq.mm</option>
+                    <option value="120">120 sq.mm</option>
+                    <option value="150">150 sq.mm</option>
+                    <option value="185">185 sq.mm</option>
+                    <option value="240">240 sq.mm</option>
+                </select>
+            </div>
+            <button class="calculate-btn" onclick="calculateVDrop()">คำนวณ V-Drop</button>
+
+            <div id="result-vdrop" class="result">
+                <p>วัสดุ: <strong id="matDisplay">Copper</strong></p>
+                <p>📉 แรงดันตก (V): <strong id="vDropVal">0</strong> V</p>
+                <p>📊 คิดเป็นเปอร์เซ็นต์: <strong id="vDropPercent">0</strong> %</p>
+                <p>🔌 แรงดันปลายทาง: <strong id="vEnd">0</strong> V</p>
+                <div class="note">
+                    *คำนวณเทียบกับแรงดันต้นทาง <span id="sourceDisplay">230</span> V
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        Developed by PEA Nakhon Phanom - Customer Service and Relations Section (ผบส.กฟจ.นพ.)
+    </footer>
+
+    <script>
+        function openTab(tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            }
+            tablinks = document.getElementsByTagName("button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).className += " active";
+            document.getElementById("btn-" + tabName).classList.add("active");
+        }
+
+        // --- 1. Amp & Trafo Logic ---
+
+        function reCalcAll() {
+            const trafoVal = document.getElementById('trafoSelect').value;
+            if (trafoVal !== "0") {
+                selectTrafo(); 
+            } else {
+                calculateAmp(); // Manual Mode
+            }
+        }
+
+        function setAmp(val) {
+            document.getElementById('ampInput').value = val;
+            document.getElementById('trafoSelect').value = "0"; 
+            calculateAmp();
+        }
+
+        function selectTrafo() {
+            const val = document.getElementById('trafoSelect').value;
+            if (val === "0") return;
+
+            const pf = parseFloat(document.getElementById('inputPF').value) || 0.85;
+            const lf = parseFloat(document.getElementById('inputLF').value) || 0.5;
+            const ratioPF = pf / 0.85;
+            const ratioLF = lf / 0.5;
+            
+            let kva = 0;
+            let totalUnits = 0;
+            let amps = 0;
+            let isThreePhase = false;
+
+            if (val === "30_1") {
+                kva = 30;
+                amps = 130; 
+                isThreePhase = false;
+            } else {
+                kva = parseInt(val.split('_')[0]);
+                amps = Math.round((kva * 1000) / (1.732 * 400));
+                isThreePhase = true;
+            }
+
+            // คำนวณ Unit รวม (Dynamic Formula)
+            // Base 1 kVA = 300 Units (at PF 0.85, LF 0.5)
+            totalUnits = kva * 300 * ratioPF * ratioLF;
+
+            document.getElementById('ampInput').value = amps;
+            displayUnits(totalUnits, isThreePhase);
+        }
+
+        // ฟังก์ชัน Manual Calculation (สูตร Amp * 70 * Ratio)
+        function calculateAmp() {
+            const amp = parseFloat(document.getElementById('ampInput').value);
+            if (isNaN(amp)) { document.getElementById('ampResultPhase').innerText = "0"; return; }
+
+            const trafoVal = document.getElementById('trafoSelect').value;
+            
+            if (trafoVal === "0") {
+                const pf = parseFloat(document.getElementById('inputPF').value) || 0.85;
+                const lf = parseFloat(document.getElementById('inputLF').value) || 0.5;
+                const ratioPF = pf / 0.85;
+                const ratioLF = lf / 0.5;
+
+                const units = (amp * 70) * ratioPF * ratioLF;
+                
+                document.getElementById('ampResultPhase').innerText = Math.round(units).toLocaleString();
+                document.getElementById('threePhaseSummary').style.display = "none";
+            }
+        }
+
+        function displayUnits(totalUnits, isThreePhase) {
+            let roundedTotal = 0;
+            if (totalUnits > 10000) {
+                 roundedTotal = Math.round(totalUnits / 1000) * 1000;
+            } else {
+                 roundedTotal = Math.round(totalUnits / 100) * 100;
+            }
+
+            if (isThreePhase) {
+                let unitPerPhase = roundedTotal / 3;
+                if(unitPerPhase > 1000) {
+                    unitPerPhase = Math.round(unitPerPhase / 100) * 100;
+                } else {
+                    unitPerPhase = Math.round(unitPerPhase / 10) * 10;
+                }
+
+                document.getElementById('ampResultPhase').innerText = unitPerPhase.toLocaleString();
+                document.getElementById('ampResultTotal').innerText = roundedTotal.toLocaleString();
+                document.getElementById('threePhaseSummary').style.display = "block";
+            } else {
+                document.getElementById('ampResultPhase').innerText = roundedTotal.toLocaleString();
+                document.getElementById('threePhaseSummary').style.display = "none";
+            }
+        }
+
+        // --- 2. Solar & VDrop Logic ---
+        function setSolar(val) {
+            document.getElementById('solarSize').value = val;
+            calculateSolar();
+        }
+
+        function calculateSolar() {
+            const size = parseFloat(document.getElementById('solarSize').value);
+            if (isNaN(size) || size < 0) return;
+            const unitsDay = size * 4; 
+            const unitsMonth = unitsDay * 30; 
+            const saving = size * 500;
+            document.getElementById('solarDay').innerText = unitsDay.toLocaleString(undefined, {maximumFractionDigits:1});
+            document.getElementById('solarMonth').innerText = unitsMonth.toLocaleString(undefined, {maximumFractionDigits:0});
+            document.getElementById('solarMoney').innerText = saving.toLocaleString();
+        }
+
+        function calculateVDrop() {
+            const I = parseFloat(document.getElementById('vd_current').value);
+            const L = parseFloat(document.getElementById('vd_distance').value);
+            const A = parseFloat(document.getElementById('vd_cableSize').value);
+            const type = document.getElementById('conductorType').value;
+            let V_source = parseFloat(document.getElementById('vd_source').value);
+            if (isNaN(V_source)) V_source = 230; 
+            let rho = 0.0178; 
+            let matName = "ทองแดง (Copper)";
+            if (type === 'Al') { rho = 0.028; matName = "อลูมิเนียม (Aluminum)"; }
+            const resultDiv = document.getElementById('result-vdrop');
+            if (isNaN(I) || isNaN(L)) { resultDiv.style.display = 'none'; return; }
+            const vDrop = (2 * L * I * rho) / A;
+            const percent = (vDrop / V_source) * 100;
+            const vEnd = V_source - vDrop;
+            document.getElementById('matDisplay').innerText = matName;
+            document.getElementById('sourceDisplay').innerText = V_source;
+            document.getElementById('vDropVal').innerText = vDrop.toFixed(2);
+            document.getElementById('vDropPercent').innerText = percent.toFixed(2);
+            document.getElementById('vEnd').innerText = vEnd.toFixed(2);
+            resultDiv.style.display = 'block';
+            const percentEl = document.getElementById('vDropPercent');
+            if(percent > 5) { percentEl.style.color = "red"; } else { percentEl.style.color = "#2e7d32"; }
+        }
+
+        window.onload = function() {
+            calculateAmp();
+            calculateSolar();
+        };
+    </script>
+</body>
+</html>
