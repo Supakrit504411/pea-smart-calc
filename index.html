@@ -2,389 +2,1169 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PEA Smart Calculator Tools</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-1: #020617;
+            --bg-2: #0f172a;
+            --panel: rgba(15, 23, 42, 0.68);
+            --panel-solid: #0f172a;
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-1: #e2e8f0;
+            --text-2: #94a3b8;
+            --accent: #22d3ee;
+            --accent-2: #3b82f6;
+            --success: #10b981;
+            --warn: #f59e0b;
+            --danger: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: #f0f2f5;
             margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             min-height: 100vh;
+            font-family: 'Prompt', 'Inter', system-ui, sans-serif;
+            color: var(--text-1);
+            background:
+                radial-gradient(circle at top right, rgba(34, 211, 238, 0.14), transparent 24%),
+                radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.12), transparent 28%),
+                linear-gradient(160deg, var(--bg-2), var(--bg-1) 58%);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px);
+            background-size: 36px 36px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
+            opacity: 0.35;
+        }
+
+        .app-shell {
+            position: relative;
+            width: min(1280px, calc(100% - 24px));
+            margin: 18px auto 26px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 18px 20px;
+            border-radius: 24px;
+            background: rgba(2, 6, 23, 0.82);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 16px 40px rgba(2, 6, 23, 0.42);
+        }
+
+        .brand-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .brand-kicker::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 0 14px rgba(34, 211, 238, 0.7);
+        }
+
+        .topbar h1 {
+            margin: 8px 0 4px;
+            font-size: clamp(26px, 4vw, 38px);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+
+        .topbar h1 span {
+            color: transparent;
+            background: linear-gradient(90deg, var(--accent), #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .topbar p {
+            margin: 0;
+            color: var(--text-2);
+            font-size: 13px;
+        }
+
+        .topbar-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .meta-pill {
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            color: var(--text-2);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .nav-wrap {
+            padding: 8px;
+            border-radius: 22px;
+            background: rgba(2, 6, 23, 0.72);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 28px rgba(2, 6, 23, 0.28);
         }
 
         nav {
-            background-color: #1a237e;
-            width: 100%;
-            padding: 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
         }
 
         nav button {
-            background-color: transparent;
-            color: #c5cae9;
-            border: none;
-            padding: 15px 20px;
-            font-size: 16px;
-            font-weight: 600;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 16px;
+            padding: 14px 16px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
-            border-bottom: 4px solid transparent;
-            transition: all 0.3s;
-            flex-grow: 1;
-            max-width: 200px;
+            transition: all 0.25s ease;
         }
 
-        nav button:hover { color: white; background-color: rgba(255,255,255,0.1); }
-        nav button.active { color: white; border-bottom: 4px solid #ffca28; }
-
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            width: 90%;
-            max-width: 500px;
-            margin-top: 30px;
-            margin-bottom: 30px;
+        nav button:hover {
+            color: white;
+            background: rgba(15, 23, 42, 0.7);
+            border-color: rgba(34, 211, 238, 0.2);
         }
 
-        h2 { text-align: center; color: #333; margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        nav button.active {
+            color: #03111f;
+            background: linear-gradient(135deg, #67e8f9, #38bdf8);
+            box-shadow: 0 10px 24px rgba(34, 211, 238, 0.28);
+        }
 
-        .input-group { margin-bottom: 15px; }
-        .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
-        .input-half { flex: 1; }
+        .page-body {
+            margin-top: 16px;
+        }
 
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #444; }
-        
-        input, select {
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .tool-left,
+        .tool-right,
+        .glass-panel {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 26px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 18px 40px rgba(2, 6, 23, 0.28);
+        }
+
+        .tool-left {
+            padding: 22px;
+        }
+
+        .tool-right {
+            padding: 22px;
+        }
+
+        .highlight-panel {
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 22px 48px rgba(2, 6, 23, 0.34),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .highlight-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at top right, rgba(34, 211, 238, 0.16), transparent 28%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 38%);
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+
+        .section-label::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: currentColor;
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        .tool-title {
+            margin: 0 0 6px;
+            font-size: clamp(24px, 4vw, 34px);
+            line-height: 1.02;
+            letter-spacing: -0.04em;
+        }
+
+        .tool-desc {
+            margin: 0 0 20px;
+            color: var(--text-2);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .tool-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .field-card {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(2, 6, 23, 0.34);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        .field-card label,
+        .field-card .label-inline {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        input,
+        select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-            box-sizing: border-box;
-            background-color: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            border-radius: 16px;
+            padding: 13px 14px;
+            background: rgba(15, 23, 42, 0.95);
+            color: #f8fafc;
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(34, 211, 238, 0.68);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.14);
         }
 
         .quick-btn-group {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
-            margin-bottom: 15px;
         }
-        .quick-btn {
-            flex: 1;
-            min-width: 50px;
-            padding: 8px;
-            background-color: #e3f2fd;
-            border: 1px solid #90caf9;
-            color: #1565c0;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-            text-align: center;
-        }
-        .quick-btn:hover { background-color: #bbdefb; }
 
-        button.calculate-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #1a237e;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
+        .quick-btn {
+            padding: 11px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(34, 211, 238, 0.18);
+            background: rgba(6, 182, 212, 0.08);
+            color: #a5f3fc;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 15px;
-            transition: background 0.3s;
+            transition: all 0.2s ease;
         }
-        button.calculate-btn:hover { background-color: #0d47a1; }
+
+        .quick-btn:hover {
+            background: rgba(34, 211, 238, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 14px 16px;
+            border: 0;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #22d3ee, #3b82f6);
+            color: #03111f;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            box-shadow: 0 12px 24px rgba(34, 211, 238, 0.18);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(34, 211, 238, 0.24);
+        }
 
         .result {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-left: 5px solid #1a237e;
-            border-radius: 4px;
-            display: none;
-        }
-        .result p { margin: 8px 0; color: #333; font-size: 16px; }
-        .result strong { color: #d32f2f; font-size: 19px; }
-
-        .note { font-size: 13px; color: #555; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc; line-height: 1.6; }
-        .small-text { font-size: 13px; color: #555; font-weight: normal; }
-
-        /* สไตล์สำหรับปุ่มลิงก์ภายนอก */
-        .external-link-btn {
             display: block;
-            width: 100%;
+            padding: 18px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.85));
+            border: 1px solid rgba(34, 211, 238, 0.12);
+        }
+
+        .result-primary {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(34, 211, 238, 0.22);
+            box-shadow:
+                0 18px 36px rgba(6, 182, 212, 0.12),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+        }
+
+        .result-primary::after {
+            content: "";
+            position: absolute;
+            top: -36px;
+            right: -20px;
+            width: 140px;
+            height: 140px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.18), transparent 68%);
+            pointer-events: none;
+        }
+
+        .result p {
+            margin: 0 0 10px;
+            color: var(--text-1);
+            font-size: 14px;
+        }
+
+        .result strong {
+            color: white;
+            font-size: 18px;
+        }
+
+        .result-hero {
+            margin: 0 0 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-2);
+        }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(34, 211, 238, 0.12);
+            border: 1px solid rgba(34, 211, 238, 0.18);
+            color: #a5f3fc;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .result-badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: currentColor;
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        .result-value {
+            display: block;
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: white;
+        }
+
+        .result-value.accent {
+            color: transparent;
+            background: linear-gradient(90deg, #ecfeff, #67e8f9 45%, #38bdf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 0 26px rgba(34, 211, 238, 0.16);
+        }
+
+        .answer-caption {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .summary-box {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        .note {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px dashed rgba(148, 163, 184, 0.24);
+            color: var(--text-2);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .small-text {
+            font-size: 12px;
+            color: var(--text-2);
+        }
+
+        .credit-box {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(30, 41, 59, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            color: #cbd5e1;
+            font-size: 12px;
+            line-height: 1.6;
             text-align: center;
-            padding: 10px;
-            background-color: #ff9800; /* สีส้ม PEA */
+        }
+
+        .external-link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 16px;
+            margin-top: 14px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #fb923c, #f97316);
             color: white;
             text-decoration: none;
-            border-radius: 6px;
-            margin-top: 15px;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        .external-link-btn:hover {
-            background-color: #f57c00;
-        }
-
-        /* สไตล์สำหรับกล่องเครดิต */
-        .credit-box {
-            margin-top: 12px;
-            padding: 10px;
-            border-top: 1px dashed #ccc;
-            color: #1a237e;
-            font-weight: 600;
-            text-align: center;
-            background-color: #e8eaf6;
-            border-radius: 5px;
-        }
-
-        footer {
-            margin-top: auto;
-            margin-bottom: 20px;
-            color: #777;
             font-size: 14px;
-            text-align: center;
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 12px 26px rgba(249, 115, 22, 0.2);
         }
 
-        .tab-content { display: none; animation: fadeIn 0.4s; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .stats-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .stat-card {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(2, 6, 23, 0.4);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        .stat-card .stat-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-2);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .stat-card .stat-value {
+            display: block;
+            color: white;
+            font-size: clamp(22px, 4vw, 32px);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .stat-card.emphasis {
+            position: relative;
+            border-color: rgba(34, 211, 238, 0.18);
+            background: linear-gradient(180deg, rgba(8, 47, 73, 0.38), rgba(2, 6, 23, 0.42));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        }
+
+        .stat-card.emphasis .stat-value {
+            color: transparent;
+            background: linear-gradient(90deg, #ffffff, #67e8f9);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .stat-card.emphasis::after {
+            content: "Key";
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(34, 211, 238, 0.12);
+            border: 1px solid rgba(34, 211, 238, 0.16);
+            color: #a5f3fc;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .focus-ring {
+            box-shadow:
+                0 0 0 1px rgba(34, 211, 238, 0.12),
+                0 18px 36px rgba(6, 182, 212, 0.12);
+        }
+
+        .stat-card .stat-sub {
+            display: block;
+            margin-top: 6px;
+            color: var(--text-2);
+            font-size: 12px;
+        }
+
+        .tip-card {
+            margin-top: 14px;
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px solid rgba(34, 211, 238, 0.12);
+        }
+
+        .tip-card h3 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #a5f3fc;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .tip-card p {
+            margin: 0;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .danger-box {
+            margin-top: 14px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.14);
+            color: #fecdd3;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .tap-page {
+            font-family: 'Prompt', 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .tap-page input::-webkit-outer-spin-button,
+        .tap-page input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .table-scrollbar::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .table-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .table-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.3);
+            border-radius: 99px;
+        }
+
+        .footer {
+            margin-top: 18px;
+            padding: 16px 18px;
+            border-radius: 20px;
+            background: rgba(2, 6, 23, 0.72);
+            border: 1px solid var(--panel-border);
+            color: var(--text-2);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        @media (max-width: 980px) {
+            .tool-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .topbar-meta {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .app-shell {
+                width: min(100% - 16px, 1280px);
+                margin-top: 10px;
+            }
+
+            .topbar,
+            .tool-left,
+            .tool-right,
+            .glass-panel,
+            .footer {
+                border-radius: 20px;
+            }
+
+            nav {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .input-row,
+            .quick-btn-group {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <nav>
-        <button onclick="openTab('ampToUnit')" id="btn-ampToUnit" class="active">1. แปลง Amp</button>
-        <button onclick="openTab('solarRoof')" id="btn-solarRoof">2. Solar Roof</button>
-        <button onclick="openTab('voltageDrop')" id="btn-voltageDrop" style="display:none;">3. V-Drop</button>
-    </nav>
-
-    <div class="container">
-        
-        <div id="ampToUnit" class="tab-content active">
-            <h2>ประเมินหน่วยการใช้ไฟฟ้า </h2>
-            
-            <label>เลือกพิกัด:</label>
-            <div class="quick-btn-group">
-                <button class="quick-btn" onclick="setAmp(1)">1A</button>
-                <button class="quick-btn" onclick="setAmp(5)">5A</button>
-                <button class="quick-btn" onclick="setAmp(15)">15A</button>
-                <button class="quick-btn" onclick="setAmp(30)">30A</button>
+    <div class="app-shell">
+        <header class="topbar">
+            <div>
+                <span class="brand-kicker">PEA Utility Toolkit</span>
+                <h1>SMART CALCULATOR <span>SUITE</span></h1>
+                <p>รวมเครื่องมือคำนวณงานบริการ งานวิเคราะห์โหลด และ Tap Analyzer ไว้ในหน้าเดียว</p>
             </div>
-
-            <div class="input-row">
-                <div class="input-half">
-                    <label>P.F. (Power Factor):</label>
-                    <input type="number" id="inputPF" value="0.85" step="0.01" oninput="reCalcAll()">
-                </div>
-                <div class="input-half">
-                    <label>L.F. (Load Factor):</label>
-                    <input type="number" id="inputLF" value="0.5" step="0.1" oninput="reCalcAll()">
-                </div>
+            <div class="topbar-meta">
+                <span class="meta-pill">PEA Web Tools</span>
+                <span class="meta-pill">Engineering Support</span>
             </div>
+        </header>
 
-            <div class="input-group">
-                <label>หรือ เลือกขนาดหม้อแปลง:</label>
-                <select id="trafoSelect" onchange="selectTrafo()">
-                    <option value="0">-- ไม่เลือก (กรอกเอง) --</option>
-                    <optgroup label="1 เฟส (Single Phase)">
-                        <option value="30_1">30 kVA (1 Phase)</option>
-                    </optgroup>
-                    <optgroup label="3 เฟส (3 Phase)">
-                        <option value="50_3">50 kVA</option>
-                        <option value="100_3">100 kVA</option>
-                        <option value="160_3">160 kVA</option>
-                        <option value="250_3">250 kVA</option>
-                        <option value="315_3">315 kVA</option>
-                        <option value="400_3">400 kVA</option>
-                        <option value="500_3">500 kVA</option>
-                        <option value="630_3">630 kVA</option>
-                        <option value="800_3">800 kVA</option>
-                        <option value="1000_3">1000 kVA</option>
-                    </optgroup>
-                </select>
-            </div>
+        <div class="nav-wrap">
+            <nav>
+                <button onclick="openTab('ampToUnit')" id="btn-ampToUnit" class="active">1. แปลง Amp</button>
+                <button onclick="openTab('solarRoof')" id="btn-solarRoof">2. Solar Roof</button>
+                <button onclick="openTab('voltageDrop')" id="btn-voltageDrop">3. V-Drop</button>
+                <button onclick="openTab('tapAnalyzer')" id="btn-tapAnalyzer">4. Tap TR</button>
+            </nav>
+        </div>
 
-            <div class="input-group">
-                <label>กระแสไฟฟ้า (Amps/Phase):</label>
-                <input type="number" id="ampInput" value="1" oninput="calculateAmp()">
-            </div>
-            
-            <button class="calculate-btn" onclick="calculateAmp()">คำนวณ</button>
+        <main class="page-body">
+            <section id="ampToUnit" class="tab-content active">
+                <div class="tool-shell">
+                    <div class="tool-left">
+                        <span class="section-label">Load Estimator</span>
+                        <h2 class="tool-title">ประเมินหน่วยการใช้ไฟฟ้า</h2>
+                        <p class="tool-desc">คำนวณหน่วยใช้งานจากค่าแอมป์หรือเลือกขนาดหม้อแปลงเพื่อประเมินภาพรวมของโหลด โดยสูตรเดิมยังคงเดิมทุกส่วน</p>
 
-            <div id="result-amp" class="result" style="display:block;">
-                <p>⚡ หน่วยการใช้ไฟ:</p>
-                <p>• <strong><span id="ampResultPhase">0</span> หน่วย/เดือน/เฟส</strong></p>
-                
-                <div id="threePhaseSummary" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid #ddd;">
-                    <p>⚡ รวม 3 เฟส (โดยประมาณ):</p>
-                    <p style="color:#1a237e;"><strong><span id="ampResultTotal">0</span> หน่วย/เดือน</strong></p>
-                </div>
+                        <div class="tool-grid">
+                            <div class="field-card">
+                                <span class="label-inline">เลือกพิกัดแบบเร็ว</span>
+                                <div class="quick-btn-group">
+                                    <button class="quick-btn" onclick="setAmp(1)">1A</button>
+                                    <button class="quick-btn" onclick="setAmp(5)">5A</button>
+                                    <button class="quick-btn" onclick="setAmp(15)">15A</button>
+                                    <button class="quick-btn" onclick="setAmp(30)">30A</button>
+                                </div>
+                            </div>
 
-                <div class="note">
-                    *: 1A ≈ 70 หน่วย (ปรับตาม PF, LF)<br>
-                          เพื่อวิเคราะห์ขนาดการติดตั้งมิเตอร์<br>
-                    *: 10 kVA ≈ 3,000 หน่วย (ปรับตาม PF, LF)<br>
-                         เพื่อวิเคราะห์ ป้องกัน TR OverLoad (โดยเฉพาะการชำรุดกรณี OverLoad Phase)<br>
-                    <div class="credit-box">
-                        "แนวทางประเมินที่สะดวก รวดเร็ว และเข้าใจง่าย<br>
-                        โดยท่านทรงศักดิ์ พิกุลทอง (ผชก.ฉ.1)"
+                            <div class="input-row">
+                                <div class="field-card">
+                                    <label for="inputPF">P.F. (Power Factor)</label>
+                                    <input type="number" id="inputPF" value="0.85" step="0.01" oninput="reCalcAll()">
+                                </div>
+                                <div class="field-card">
+                                    <label for="inputLF">L.F. (Load Factor)</label>
+                                    <input type="number" id="inputLF" value="0.5" step="0.1" oninput="reCalcAll()">
+                                </div>
+                            </div>
+
+                            <div class="field-card">
+                                <label for="trafoSelect">หรือเลือกขนาดหม้อแปลง</label>
+                                <select id="trafoSelect" onchange="selectTrafo()">
+                                    <option value="0">-- ไม่เลือก (กรอกเอง) --</option>
+                                    <optgroup label="1 เฟส (Single Phase)">
+                                        <option value="30_1">30 kVA (1 Phase)</option>
+                                    </optgroup>
+                                    <optgroup label="3 เฟส (3 Phase)">
+                                        <option value="50_3">50 kVA</option>
+                                        <option value="100_3">100 kVA</option>
+                                        <option value="160_3">160 kVA</option>
+                                        <option value="250_3">250 kVA</option>
+                                        <option value="315_3">315 kVA</option>
+                                        <option value="400_3">400 kVA</option>
+                                        <option value="500_3">500 kVA</option>
+                                        <option value="630_3">630 kVA</option>
+                                        <option value="800_3">800 kVA</option>
+                                        <option value="1000_3">1000 kVA</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="field-card">
+                                <label for="ampInput">กระแสไฟฟ้า (Amps/Phase)</label>
+                                <input type="number" id="ampInput" value="1" oninput="calculateAmp()">
+                            </div>
+
+                            <button class="calculate-btn" onclick="calculateAmp()">คำนวณหน่วยการใช้ไฟ</button>
+                        </div>
+                    </div>
+
+                    <div class="tool-right highlight-panel">
+                        <div id="result-amp" class="result result-primary">
+                            <div class="result-badge">คำตอบหลัก</div>
+                            <div class="result-hero">ผลการประเมิน</div>
+                            <p>หน่วยการใช้ไฟต่อเฟส</p>
+                            <span class="result-value accent"><span id="ampResultPhase">0</span></span>
+                            <span class="answer-caption">หน่วย/เดือน/เฟส</span>
+
+                            <div id="threePhaseSummary" class="summary-box" style="display:none;">
+                                <p>รวม 3 เฟส (โดยประมาณ)</p>
+                                <span class="result-value accent" style="font-size:32px;"><span id="ampResultTotal">0</span></span>
+                                <span class="answer-caption">หน่วย/เดือน</span>
+                            </div>
+
+                            <div class="note">
+                                *: 1A ≈ 70 หน่วย (ปรับตาม PF, LF)<br>
+                                เพื่อวิเคราะห์ขนาดการติดตั้งมิเตอร์<br>
+                                *: 10 kVA ≈ 3,000 หน่วย (ปรับตาม PF, LF)<br>
+                                เพื่อวิเคราะห์ ป้องกัน TR OverLoad (โดยเฉพาะการชำรุดกรณี OverLoad Phase)
+                                <div class="credit-box">
+                                    "แนวทางประเมินที่สะดวก รวดเร็ว และเข้าใจง่าย<br>
+                                    โดยท่านทรงศักดิ์ พิกุลทอง (ผชก.ฉ.1)"
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tip-card">
+                            <h3>หลักการใช้งาน</h3>
+                            <p>ถ้าเลือกขนาดหม้อแปลง ระบบจะคำนวณจากฐาน kVA เดิมของหน้าเดิมอัตโนมัติ แต่ถ้าไม่เลือกหม้อแปลงจะกลับไปใช้สูตรแอมป์ตาม Manual Mode ตามเดิม</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <div id="solarRoof" class="tab-content">
-            <h2>ประเมิน Solar Rooftop</h2>
-            
-            <label>เลือกขนาดติดตั้ง (kW):</label>
-            <div class="quick-btn-group">
-                <button class="quick-btn" onclick="setSolar(1)">1kW</button>
-                <button class="quick-btn" onclick="setSolar(3)">3kW</button>
-                <button class="quick-btn" onclick="setSolar(5)">5kW</button>
-                <button class="quick-btn" onclick="setSolar(10)">10kW</button>
-                <button class="quick-btn" onclick="setSolar(20)">20kW</button>
-            </div>
+            <section id="solarRoof" class="tab-content">
+                <div class="tool-shell">
+                    <div class="tool-left">
+                        <span class="section-label">Solar Quick Check</span>
+                        <h2 class="tool-title">ประเมิน Solar Rooftop</h2>
+                        <p class="tool-desc">ดูภาพรวมพลังงานที่ผลิตได้ต่อวัน ต่อเดือน และประมาณการลดค่าไฟในรูปแบบที่อ่านง่ายขึ้น โดยคงวิธีคำนวณเดิมทุกบรรทัด</p>
 
-            <div class="input-group">
-                <label>ขนาดติดตั้ง (kW):</label>
-                <input type="number" id="solarSize" value="1" oninput="calculateSolar()">
-            </div>
-            <button class="calculate-btn" onclick="calculateSolar()">คำนวณ</button>
+                        <div class="tool-grid">
+                            <div class="field-card">
+                                <span class="label-inline">เลือกขนาดติดตั้งแบบเร็ว</span>
+                                <div class="quick-btn-group" style="grid-template-columns: repeat(5, minmax(0, 1fr));">
+                                    <button class="quick-btn" onclick="setSolar(1)">1kW</button>
+                                    <button class="quick-btn" onclick="setSolar(3)">3kW</button>
+                                    <button class="quick-btn" onclick="setSolar(5)">5kW</button>
+                                    <button class="quick-btn" onclick="setSolar(10)">10kW</button>
+                                    <button class="quick-btn" onclick="setSolar(20)">20kW</button>
+                                </div>
+                            </div>
 
-            <div id="result-solar" class="result" style="display:block;">
-                <p>☀️ Peak Sun Hour: <strong>4 ชั่วโมง/วัน</strong></p>
-                <hr style="border:0; border-top:1px solid #ddd; margin:10px 0;">
-                
-                <p>⚡ ผลิตไฟได้ (วัน): <strong id="solarDay">4</strong> หน่วย</p>
-                <p>⚡ ผลิตไฟได้ (เดือน): <strong id="solarMonth">120</strong> หน่วย</p>
-                <p>
-                    💰 ลดค่าไฟได้เดือนละ: <strong id="solarMoney">500</strong> บาท <br>
-                    <span class="small-text" style="color:#e65100;">(*คำนวณรวม Loss ในระบบแล้ว 1kW ลดได้ ~500 บาท)</span>
-                </p>
+                            <div class="field-card">
+                                <label for="solarSize">ขนาดติดตั้ง (kW)</label>
+                                <input type="number" id="solarSize" value="1" oninput="calculateSolar()">
+                            </div>
 
-                <a href="https://peasolar.pea.co.th/our-products/" target="_blank" class="external-link-btn">
-                    ดูผลิตภัณฑ์ PEA Solar คลิกที่นี่
-                </a>
+                            <button class="calculate-btn" onclick="calculateSolar()">คำนวณผลผลิต Solar</button>
+                        </div>
+                    </div>
 
-                <div class="note">
-                    <div class="credit-box">
-                        "แนวทางประเมินที่สะดวก รวดเร็ว และเข้าใจง่าย<br>
-                        โดยท่านทรงศักดิ์ พิกุลทอง (ผชก.ฉ.1)"
+                    <div class="tool-right highlight-panel">
+                        <div id="result-solar" class="result result-primary">
+                            <div class="result-badge">คำตอบหลัก</div>
+                            <div class="result-hero">Solar Summary</div>
+                            <p>Peak Sun Hour</p>
+                            <span class="result-value accent">4 ชั่วโมง/วัน</span>
+
+                            <div class="stats-grid" style="margin-top:16px;">
+                                <div class="stat-card emphasis focus-ring">
+                                    <span class="stat-label">ผลิตไฟต่อวัน</span>
+                                    <span id="solarDay" class="stat-value">4</span>
+                                    <span class="stat-sub">หน่วย/วัน</span>
+                                </div>
+                                <div class="stat-card emphasis">
+                                    <span class="stat-label">ผลิตไฟต่อเดือน</span>
+                                    <span id="solarMonth" class="stat-value">120</span>
+                                    <span class="stat-sub">หน่วย/เดือน</span>
+                                </div>
+                                <div class="stat-card emphasis">
+                                    <span class="stat-label">ลดค่าไฟโดยประมาณ</span>
+                                    <span id="solarMoney" class="stat-value">500</span>
+                                    <span class="stat-sub">บาท/เดือน</span>
+                                </div>
+                            </div>
+
+                            <p class="small-text" style="margin-top:12px; color:#fdba74;">*คำนวณรวม Loss ในระบบแล้ว 1kW ลดได้ ~500 บาท</p>
+
+                            <a href="https://peasolar.pea.co.th/our-products/" target="_blank" class="external-link-btn">
+                                ดูผลิตภัณฑ์ PEA Solar
+                            </a>
+
+                            <div class="note">
+                                <div class="credit-box">
+                                    "แนวทางประเมินที่สะดวก รวดเร็ว และเข้าใจง่าย<br>
+                                    โดยท่านทรงศักดิ์ พิกุลทอง (ผชก.ฉ.1)"
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tip-card">
+                            <h3>หมายเหตุ</h3>
+                            <p>ตัวเลขชุดนี้เป็นการประเมินแบบเร็ว เหมาะสำหรับใช้คุยเบื้องต้นกับลูกค้าหรือใช้ประกอบการมองภาพรวมก่อนลงรายละเอียดหน้างานจริง</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <div id="voltageDrop" class="tab-content">
-            <h2>คำนวณ Voltage Drop (อยู่ระหว่างปรับปรุงโปรดตรวจสอบความถูกต้องอีกครั้ง)</h2>
-            
-            <div class="input-group">
-                <label>แรงดันต้นทาง (Source Voltage):</label>
-                <input type="number" id="vd_source" value="230" placeholder="เช่น 230 หรือ 400" oninput="calculateVDrop()">
-            </div>
+            <section id="voltageDrop" class="tab-content">
+                <div class="tool-shell">
+                    <div class="tool-left">
+                        <span class="section-label">Voltage Drop</span>
+                        <h2 class="tool-title">คำนวณ Voltage Drop</h2>
+                        <p class="tool-desc">เปลี่ยนหน้าตาให้ทันสมัยขึ้น แต่ยังคงสูตรเดิมของการหาค่าแรงดันตก เปอร์เซ็นต์แรงดันตก และแรงดันปลายทางแบบเดิมทั้งหมด</p>
 
-            <div class="input-group">
-                <label>ชนิดตัวนำ:</label>
-                <select id="conductorType" onchange="calculateVDrop()">
-                    <option value="Cu">ทองแดง (Copper)</option>
-                    <option value="Al">อลูมิเนียม (Aluminum)</option>
-                </select>
-            </div>
+                        <div class="tool-grid">
+                            <div class="field-card">
+                                <label for="vd_source">แรงดันต้นทาง (Source Voltage)</label>
+                                <input type="number" id="vd_source" value="230" placeholder="เช่น 230 หรือ 400" oninput="calculateVDrop()">
+                            </div>
 
-            <div class="input-group">
-                <label>กระแสไฟฟ้า (Amps):</label>
-                <input type="number" id="vd_current" placeholder="เช่น 15" oninput="calculateVDrop()">
-            </div>
-            <div class="input-group">
-                <label>ความยาวสาย (เมตร):</label>
-                <input type="number" id="vd_distance" placeholder="ระยะทางเดินสาย" oninput="calculateVDrop()">
-            </div>
-            <div class="input-group">
-                <label>ขนาดสายไฟ (sq.mm):</label>
-                <select id="vd_cableSize" onchange="calculateVDrop()">
-                    <option value="1">1 sq.mm</option>
-                    <option value="1.5">1.5 sq.mm</option>
-                    <option value="2.5" selected>2.5 sq.mm</option>
-                    <option value="4">4 sq.mm</option>
-                    <option value="6">6 sq.mm</option>
-                    <option value="10">10 sq.mm</option>
-                    <option value="16">16 sq.mm</option>
-                    <option value="25">25 sq.mm</option>
-                    <option value="35">35 sq.mm</option>
-                    <option value="50">50 sq.mm</option>
-                    <option value="70">70 sq.mm</option>
-                    <option value="95">95 sq.mm</option>
-                    <option value="120">120 sq.mm</option>
-                    <option value="150">150 sq.mm</option>
-                    <option value="185">185 sq.mm</option>
-                    <option value="240">240 sq.mm</option>
-                </select>
-            </div>
-            <button class="calculate-btn" onclick="calculateVDrop()">คำนวณ V-Drop</button>
+                            <div class="field-card">
+                                <label for="conductorType">ชนิดตัวนำ</label>
+                                <select id="conductorType" onchange="calculateVDrop()">
+                                    <option value="Cu">ทองแดง (Copper)</option>
+                                    <option value="Al">อลูมิเนียม (Aluminum)</option>
+                                </select>
+                            </div>
 
-            <div id="result-vdrop" class="result">
-                <p>วัสดุ: <strong id="matDisplay">Copper</strong></p>
-                <p>📉 แรงดันตก (V): <strong id="vDropVal">0</strong> V</p>
-                <p>📊 คิดเป็นเปอร์เซ็นต์: <strong id="vDropPercent">0</strong> %</p>
-                <p>🔌 แรงดันปลายทาง: <strong id="vEnd">0</strong> V</p>
-                <div class="note">
-                    *คำนวณเทียบกับแรงดันต้นทาง <span id="sourceDisplay">230</span> V
+                            <div class="input-row">
+                                <div class="field-card">
+                                    <label for="vd_current">กระแสไฟฟ้า (Amps)</label>
+                                    <input type="number" id="vd_current" placeholder="เช่น 15" oninput="calculateVDrop()">
+                                </div>
+                                <div class="field-card">
+                                    <label for="vd_distance">ความยาวสาย (เมตร)</label>
+                                    <input type="number" id="vd_distance" placeholder="ระยะทางเดินสาย" oninput="calculateVDrop()">
+                                </div>
+                            </div>
+
+                            <div class="field-card">
+                                <label for="vd_cableSize">ขนาดสายไฟ (sq.mm)</label>
+                                <select id="vd_cableSize" onchange="calculateVDrop()">
+                                    <option value="1">1 sq.mm</option>
+                                    <option value="1.5">1.5 sq.mm</option>
+                                    <option value="2.5" selected>2.5 sq.mm</option>
+                                    <option value="4">4 sq.mm</option>
+                                    <option value="6">6 sq.mm</option>
+                                    <option value="10">10 sq.mm</option>
+                                    <option value="16">16 sq.mm</option>
+                                    <option value="25">25 sq.mm</option>
+                                    <option value="35">35 sq.mm</option>
+                                    <option value="50">50 sq.mm</option>
+                                    <option value="70">70 sq.mm</option>
+                                    <option value="95">95 sq.mm</option>
+                                    <option value="120">120 sq.mm</option>
+                                    <option value="150">150 sq.mm</option>
+                                    <option value="185">185 sq.mm</option>
+                                    <option value="240">240 sq.mm</option>
+                                </select>
+                            </div>
+
+                            <button class="calculate-btn" onclick="calculateVDrop()">คำนวณ V-Drop</button>
+                        </div>
+                    </div>
+
+                    <div class="tool-right highlight-panel">
+                        <div id="result-vdrop" class="result result-primary" style="display:none;">
+                            <div class="result-badge">คำตอบหลัก</div>
+                            <div class="result-hero">Voltage Drop Result</div>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <span class="stat-label">วัสดุ</span>
+                                    <span id="matDisplay" class="stat-value" style="font-size:24px;">Copper</span>
+                                    <span class="stat-sub">ชนิดตัวนำที่เลือก</span>
+                                </div>
+                                <div class="stat-card emphasis">
+                                    <span class="stat-label">แรงดันตก</span>
+                                    <span id="vDropVal" class="stat-value">0</span>
+                                    <span class="stat-sub">โวลต์ (V)</span>
+                                </div>
+                                <div class="stat-card emphasis focus-ring">
+                                    <span class="stat-label">คิดเป็นเปอร์เซ็นต์</span>
+                                    <span id="vDropPercent" class="stat-value">0</span>
+                                    <span class="stat-sub">%</span>
+                                </div>
+                                <div class="stat-card emphasis">
+                                    <span class="stat-label">แรงดันปลายทาง</span>
+                                    <span id="vEnd" class="stat-value">0</span>
+                                    <span class="stat-sub">โวลต์ (V)</span>
+                                </div>
+                            </div>
+
+                            <div class="note">
+                                *คำนวณเทียบกับแรงดันต้นทาง <span id="sourceDisplay">230</span> V
+                            </div>
+                        </div>
+
+                        <div class="danger-box">
+                            ผลลัพธ์ส่วนนี้ยังควรใช้เพื่อช่วยประเมินเบื้องต้นและควรตรวจทานกับเงื่อนไขหน้างานจริง เช่น ระบบ 1 เฟส/3 เฟส วิธีเดินสาย และมาตรฐานการออกแบบที่ใช้อยู่
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </section>
 
+            <section id="tapAnalyzer" class="tab-content tap-page">
+                <div class="max-w-6xl mx-auto space-y-6 md:space-y-8">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5 md:pb-6">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="h-2 w-2 rounded-full bg-cyan-500 animate-pulse"></span>
+                                <span class="text-[10px] md:text-xs font-semibold uppercase tracking-wider text-cyan-400">Transformer Diagnostics</span>
+                            </div>
+                            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white !text-left !border-0 !p-0 !m-0">TAP ANALYZER <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">PRO</span></h2>
+                            <p class="text-slate-400 text-xs md:text-sm mt-2">วิเคราะห์แรงดันเชิงลึกและจำลองผลการสับเปลี่ยน Tap หม้อแปลงไฟฟ้าระบบ 22 kV</p>
+                        </div>
+                        <div class="flex items-center gap-3 self-start md:self-auto">
+                            <span class="text-[10px] md:text-xs text-slate-400 bg-slate-800/80 border border-slate-700 px-2.5 py-1.5 rounded-lg font-mono">Formula: Ratio-Based Method</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 items-start">
+                        <div class="lg:col-span-5 space-y-5 md:space-y-6">
+                            <div class="glass-panel p-5 md:p-6 rounded-2xl glow-cyan space-y-5 md:space-y-6">
+                                <h3 class="text-sm md:text-base font-bold text-white uppercase border-b border-slate-800 pb-3 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                                    หน้างาน & พารามิเตอร์
+                                </h3>
+
+                                <div class="space-y-2">
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-wider">1. พิกัดหม้อแปลง (Nameplate)</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <button onclick="setRated(380)" id="rateBtn380" class="py-2 px-1 text-xs md:text-sm rounded-xl font-bold border transition-all duration-300 cursor-pointer text-center">380/220V</button>
+                                        <button onclick="setRated(400)" id="rateBtn400" class="py-2 px-1 text-xs md:text-sm rounded-xl font-bold border transition-all duration-300 cursor-pointer text-center">400/230V</button>
+                                        <button onclick="setRated(416)" id="rateBtn416" class="py-2 px-1 text-xs md:text-sm rounded-xl font-bold border transition-all duration-300 cursor-pointer text-center">416/240V</button>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-wider">2. ตำแหน่ง Tap ปัจจุบันหน้างาน</label>
+                                    <div class="grid grid-cols-5 gap-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800">
+                                        <button onclick="setTap(1)" id="tBtn1" class="py-2 rounded-lg text-xs md:text-sm font-bold transition-all duration-300 cursor-pointer">1</button>
+                                        <button onclick="setTap(2)" id="tBtn2" class="py-2 rounded-lg text-xs md:text-sm font-bold transition-all duration-300 cursor-pointer">2</button>
+                                        <button onclick="setTap(3)" id="tBtn3" class="py-2 rounded-lg text-xs md:text-sm font-bold transition-all duration-300 cursor-pointer">3</button>
+                                        <button onclick="setTap(4)" id="tBtn4" class="py-2 rounded-lg text-xs md:text-sm font-bold transition-all duration-300 cursor-pointer">4</button>
+                                        <button onclick="setTap(5)" id="tBtn5" class="py-2 rounded-lg text-xs md:text-sm font-bold transition-all duration-300 cursor-pointer">5</button>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <label class="text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-wider">3. แรงดันที่วัดได้ ณ ปัจจุบัน</label>
+                                        <div class="flex bg-slate-900 border border-slate-800 p-0.5 rounded-lg">
+                                            <button onclick="setUnit('VLL')" id="unitBtnVll" class="px-2 py-0.5 md:px-2.5 md:py-1 text-[10px] font-bold rounded transition-all duration-200 cursor-pointer">L-L</button>
+                                            <button onclick="setUnit('VLN')" id="unitBtnVln" class="px-2 py-0.5 md:px-2.5 md:py-1 text-[10px] font-bold rounded transition-all duration-200 cursor-pointer">L-N</button>
+                                        </div>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="measuredInput" value="380" oninput="calculate()" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 px-4 text-2xl md:text-3xl font-extrabold text-cyan-400 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all font-mono">
+                                        <span id="unitSuffix" class="absolute right-3.5 top-3.5 md:top-4 text-[10px] md:text-xs text-slate-500 font-bold tracking-wide">V (Line-to-Line)</span>
+                                    </div>
+                                    <div id="lvStatusText" class="text-xs font-semibold pt-1 flex items-center gap-1.5 transition-all duration-300"></div>
+                                </div>
+                            </div>
+
+                            <div class="glass-panel p-5 md:p-6 rounded-2xl relative overflow-hidden">
+                                <div class="absolute -right-4 -bottom-4 opacity-10 text-cyan-500">
+                                    <svg class="w-24 h-24 md:w-32 md:h-32" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
+                                </div>
+                                <div class="relative z-10 space-y-1">
+                                    <span class="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400 block">แรงดันต้นทางขาเข้าโดยประมาณ (Estimated HV Input)</span>
+                                    <div class="flex items-baseline gap-1.5">
+                                        <span id="estHvText" class="text-2xl md:text-3xl font-extrabold text-white font-mono">20,900</span>
+                                        <span class="text-[10px] md:text-xs font-semibold text-slate-400">Volts (HV)</span>
+                                    </div>
+                                    <p id="hvStatusText" class="text-xs font-medium pt-1"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-7 space-y-5 md:space-y-6">
+                            <div id="recBanner" class="p-5 md:p-6 rounded-2xl border-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 shadow-2xl">
+                                <div class="flex items-start sm:items-center gap-3 md:gap-4">
+                                    <div id="recIconBg" class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shrink-0">
+                                        <svg class="w-5.5 h-5.5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="recIcon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <span class="inline-flex items-center gap-2 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-200 bg-white/6 border border-white/8 px-2.5 py-1 rounded-full">แผนการดำเนินงานที่แนะนำ</span>
+                                        <h3 id="recActionText" class="text-lg md:text-2xl font-black mt-0.5 tracking-tight">กำลังวิเคราะห์...</h3>
+                                        <p id="recDescText" class="text-xs text-slate-200 mt-1 leading-relaxed max-w-sm"></p>
+                                    </div>
+                                </div>
+                                <div class="text-left sm:text-right border-t sm:border-t-0 border-slate-700/60 pt-3 sm:pt-0 w-full sm:w-auto">
+                                    <span class="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-300 block mb-1">แรงดันปลายทางผลลัพธ์</span>
+                                    <span id="projectedLvValue" class="text-3xl md:text-4xl font-black font-mono text-white block leading-none drop-shadow-[0_0_18px_rgba(255,255,255,0.12)]">-- V</span>
+                                    <span id="projectedLvnValue" class="inline-block text-xs font-semibold text-cyan-200 font-mono mt-2 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/15">-- V (L-N)</span>
+                                </div>
+                            </div>
+
+                            <div class="glass-panel rounded-2xl overflow-hidden">
+                                <div class="p-4 bg-slate-900/40 border-b border-slate-800 flex justify-between items-center">
+                                    <div class="flex flex-col">
+                                        <span class="text-[11px] md:text-xs font-bold text-slate-300 uppercase tracking-wider">ตารางวิเคราะห์ผลการเปลี่ยนตำแหน่ง Tap</span>
+                                        <span class="text-[9px] text-slate-500 sm:hidden">ปัดซ้าย-ขวาเพื่อดูตารางทั้งหมด</span>
+                                    </div>
+                                    <span class="text-[9px] md:text-[10px] font-medium text-slate-500">หน่วย: โวลต์ (V)</span>
+                                </div>
+                                <div class="overflow-x-auto table-scrollbar">
+                                    <table class="w-full text-left text-xs md:text-sm min-w-[500px] sm:min-w-0">
+                                        <thead>
+                                            <tr class="text-[9px] md:text-[10px] text-slate-400 uppercase tracking-wider border-b border-slate-800/80">
+                                                <th class="py-3 px-3 text-center w-20">Tap</th>
+                                                <th class="py-3 px-3">สเปกแรงสูง (HV)</th>
+                                                <th class="py-3 px-3 text-center">อัตราส่วน (Ratio)</th>
+                                                <th class="py-3 px-3 text-right">แรงดันที่จะได้รับ (Projected LV)</th>
+                                                <th class="py-3 px-3 text-center w-28">สถานะระบบ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="analysisTbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-amber-950/20 border border-amber-900/50 p-4 rounded-xl flex gap-3">
+                                    <span class="text-amber-500 text-lg">!</span>
+                                    <p class="text-[11px] text-amber-300/90 leading-relaxed">
+                                        <strong>หมายเหตุเชิงวิศวกรรม:</strong> อัตราส่วนขดลวด (Ratio) คำนวณตรงตามมาตรฐาน งานจริงอาจมีความต่างเล็กน้อยเนื่องจาก %Impedance และขนาดกระแสโหลด ณ ขณะนั้น
+                                    </p>
+                                </div>
+                                <div class="bg-rose-950/25 border border-rose-900/50 p-4 rounded-xl flex gap-3">
+                                    <span class="text-rose-500 text-lg">!</span>
+                                    <p class="text-[11px] text-rose-300/90 leading-relaxed">
+                                        <strong>DANGER:</strong> สำหรับหม้อแปลงทั่วไป (Off-Circuit Tap) ต้องปลดแหล่งจ่ายไฟ 100% ทั้งหมด และตรวจวัดประจุค้างก่อนเปิดฝาถังไปสับ Tap มิฉะนั้นอาจเกิดอันตรายร้ายแรง
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            Developed by PEA Nakhon Phanom - Customer Service and Relations Section (นายศุภกฤษ ทะวัง ชผ.บส.กฟจ.นพ.)
+        </footer>
     </div>
-
-    <footer>
-        Developed by PEA Nakhon Phanom - Customer Service and Relations Section (ผบส.กฟจ.นพ.)
-    </footer>
 
     <script>
         function openTab(tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            const tabcontent = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
             }
-            tablinks = document.getElementsByTagName("button");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-            document.getElementById(tabName).className += " active";
-            document.getElementById("btn-" + tabName).classList.add("active");
-        }
 
-        // --- 1. Amp & Trafo Logic ---
+            const navButtons = document.querySelectorAll("nav button");
+            navButtons.forEach(button => button.classList.remove("active"));
+
+            document.getElementById(tabName).classList.add("active");
+            document.getElementById("btn-" + tabName).classList.add("active");
+
+            if (tabName === "tapAnalyzer") {
+                updateUI();
+            }
+        }
 
         function reCalcAll() {
             const trafoVal = document.getElementById('trafoSelect').value;
             if (trafoVal !== "0") {
-                selectTrafo(); 
+                selectTrafo();
             } else {
-                calculateAmp(); // Manual Mode
+                calculateAmp();
             }
         }
 
         function setAmp(val) {
             document.getElementById('ampInput').value = val;
-            document.getElementById('trafoSelect').value = "0"; 
+            document.getElementById('trafoSelect').value = "0";
             calculateAmp();
         }
 
@@ -396,7 +1176,7 @@
             const lf = parseFloat(document.getElementById('inputLF').value) || 0.5;
             const ratioPF = pf / 0.85;
             const ratioLF = lf / 0.5;
-            
+
             let kva = 0;
             let totalUnits = 0;
             let amps = 0;
@@ -404,29 +1184,29 @@
 
             if (val === "30_1") {
                 kva = 30;
-                amps = 130; 
+                amps = 130;
                 isThreePhase = false;
             } else {
-                kva = parseInt(val.split('_')[0]);
+                kva = parseInt(val.split('_')[0], 10);
                 amps = Math.round((kva * 1000) / (1.732 * 400));
                 isThreePhase = true;
             }
 
-            // คำนวณ Unit รวม (Dynamic Formula)
-            // Base 1 kVA = 300 Units (at PF 0.85, LF 0.5)
             totalUnits = kva * 300 * ratioPF * ratioLF;
 
             document.getElementById('ampInput').value = amps;
             displayUnits(totalUnits, isThreePhase);
         }
 
-        // ฟังก์ชัน Manual Calculation (สูตร Amp * 70 * Ratio)
         function calculateAmp() {
             const amp = parseFloat(document.getElementById('ampInput').value);
-            if (isNaN(amp)) { document.getElementById('ampResultPhase').innerText = "0"; return; }
+            if (isNaN(amp)) {
+                document.getElementById('ampResultPhase').innerText = "0";
+                return;
+            }
 
             const trafoVal = document.getElementById('trafoSelect').value;
-            
+
             if (trafoVal === "0") {
                 const pf = parseFloat(document.getElementById('inputPF').value) || 0.85;
                 const lf = parseFloat(document.getElementById('inputLF').value) || 0.5;
@@ -434,7 +1214,7 @@
                 const ratioLF = lf / 0.5;
 
                 const units = (amp * 70) * ratioPF * ratioLF;
-                
+
                 document.getElementById('ampResultPhase').innerText = Math.round(units).toLocaleString();
                 document.getElementById('threePhaseSummary').style.display = "none";
             }
@@ -443,14 +1223,14 @@
         function displayUnits(totalUnits, isThreePhase) {
             let roundedTotal = 0;
             if (totalUnits > 10000) {
-                 roundedTotal = Math.round(totalUnits / 1000) * 1000;
+                roundedTotal = Math.round(totalUnits / 1000) * 1000;
             } else {
-                 roundedTotal = Math.round(totalUnits / 100) * 100;
+                roundedTotal = Math.round(totalUnits / 100) * 100;
             }
 
             if (isThreePhase) {
                 let unitPerPhase = roundedTotal / 3;
-                if(unitPerPhase > 1000) {
+                if (unitPerPhase > 1000) {
                     unitPerPhase = Math.round(unitPerPhase / 100) * 100;
                 } else {
                     unitPerPhase = Math.round(unitPerPhase / 10) * 10;
@@ -465,7 +1245,6 @@
             }
         }
 
-        // --- 2. Solar & VDrop Logic ---
         function setSolar(val) {
             document.getElementById('solarSize').value = val;
             calculateSolar();
@@ -474,11 +1253,11 @@
         function calculateSolar() {
             const size = parseFloat(document.getElementById('solarSize').value);
             if (isNaN(size) || size < 0) return;
-            const unitsDay = size * 4; 
-            const unitsMonth = unitsDay * 30; 
+            const unitsDay = size * 4;
+            const unitsMonth = unitsDay * 30;
             const saving = size * 500;
-            document.getElementById('solarDay').innerText = unitsDay.toLocaleString(undefined, {maximumFractionDigits:1});
-            document.getElementById('solarMonth').innerText = unitsMonth.toLocaleString(undefined, {maximumFractionDigits:0});
+            document.getElementById('solarDay').innerText = unitsDay.toLocaleString(undefined, { maximumFractionDigits: 1 });
+            document.getElementById('solarMonth').innerText = unitsMonth.toLocaleString(undefined, { maximumFractionDigits: 0 });
             document.getElementById('solarMoney').innerText = saving.toLocaleString();
         }
 
@@ -488,12 +1267,18 @@
             const A = parseFloat(document.getElementById('vd_cableSize').value);
             const type = document.getElementById('conductorType').value;
             let V_source = parseFloat(document.getElementById('vd_source').value);
-            if (isNaN(V_source)) V_source = 230; 
-            let rho = 0.0178; 
+            if (isNaN(V_source)) V_source = 230;
+            let rho = 0.0178;
             let matName = "ทองแดง (Copper)";
-            if (type === 'Al') { rho = 0.028; matName = "อลูมิเนียม (Aluminum)"; }
+            if (type === 'Al') {
+                rho = 0.028;
+                matName = "อลูมิเนียม (Aluminum)";
+            }
             const resultDiv = document.getElementById('result-vdrop');
-            if (isNaN(I) || isNaN(L)) { resultDiv.style.display = 'none'; return; }
+            if (isNaN(I) || isNaN(L)) {
+                resultDiv.style.display = 'none';
+                return;
+            }
             const vDrop = (2 * L * I * rho) / A;
             const percent = (vDrop / V_source) * 100;
             const vEnd = V_source - vDrop;
@@ -504,12 +1289,210 @@
             document.getElementById('vEnd').innerText = vEnd.toFixed(2);
             resultDiv.style.display = 'block';
             const percentEl = document.getElementById('vDropPercent');
-            if(percent > 5) { percentEl.style.color = "red"; } else { percentEl.style.color = "#2e7d32"; }
+            if (percent > 5) {
+                percentEl.style.color = "#fb7185";
+            } else {
+                percentEl.style.color = "#34d399";
+            }
+        }
+
+        const hvSteps = [23100, 22550, 22000, 21450, 20900];
+        let selectedRatedLv = 400;
+        let selectedTap = 3;
+        let selectedUnit = 'VLL';
+
+        function setRated(val) {
+            selectedRatedLv = val;
+            updateUI();
+        }
+
+        function setTap(val) {
+            selectedTap = val;
+            updateUI();
+        }
+
+        function setUnit(unit) {
+            const prevUnit = selectedUnit;
+            selectedUnit = unit;
+            const inputEl = document.getElementById('measuredInput');
+            let val = parseFloat(inputEl.value);
+
+            if (!isNaN(val)) {
+                if (unit === 'VLL' && prevUnit !== 'VLL') {
+                    inputEl.value = (val * Math.sqrt(3)).toFixed(1);
+                } else if (unit === 'VLN' && prevUnit !== 'VLN') {
+                    inputEl.value = (val / Math.sqrt(3)).toFixed(1);
+                }
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            [380, 400, 416].forEach(val => {
+                const btn = document.getElementById('rateBtn' + val);
+                if (selectedRatedLv === val) {
+                    btn.className = "py-2.5 px-1 text-xs md:text-sm rounded-xl font-bold border border-cyan-500/80 bg-cyan-950/30 text-cyan-400 cursor-pointer text-center shadow-[0_0_12px_rgba(6,182,212,0.1)]";
+                } else {
+                    btn.className = "py-2.5 px-1 text-xs md:text-sm rounded-xl font-semibold border border-slate-800 bg-slate-900/40 text-slate-400 cursor-pointer hover:bg-slate-800 hover:text-slate-300 text-center";
+                }
+            });
+
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById('tBtn' + i);
+                if (selectedTap === i) {
+                    btn.className = "py-2.5 rounded-lg text-xs md:text-sm font-extrabold bg-cyan-500 text-slate-950 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.3)]";
+                } else {
+                    btn.className = "py-2.5 rounded-lg text-xs md:text-sm font-bold text-slate-400 hover:text-slate-200 cursor-pointer hover:bg-slate-900";
+                }
+            }
+
+            const vllBtn = document.getElementById('unitBtnVll');
+            const vlnBtn = document.getElementById('unitBtnVln');
+            const suffix = document.getElementById('unitSuffix');
+
+            if (selectedUnit === 'VLL') {
+                vllBtn.className = "px-3 py-1 text-[10px] font-bold rounded-md bg-cyan-500 text-slate-950 shadow-sm cursor-pointer";
+                vlnBtn.className = "px-3 py-1 text-[10px] font-semibold rounded-md text-slate-400 hover:text-slate-200 cursor-pointer";
+                suffix.innerText = "V (L-L)";
+            } else {
+                vlnBtn.className = "px-3 py-1 text-[10px] font-bold rounded-md bg-cyan-500 text-slate-950 shadow-sm cursor-pointer";
+                vllBtn.className = "px-3 py-1 text-[10px] font-semibold rounded-md text-slate-400 hover:text-slate-200 cursor-pointer";
+                suffix.innerText = "V (L-N)";
+            }
+
+            calculate();
+        }
+
+        function calculate() {
+            const measuredVal = parseFloat(document.getElementById('measuredInput').value);
+            if (isNaN(measuredVal) || measuredVal <= 0) return;
+
+            let v_ll_measured = (selectedUnit === 'VLL') ? measuredVal : measuredVal * Math.sqrt(3);
+
+            const lvDiffPct = ((v_ll_measured - selectedRatedLv) / selectedRatedLv) * 100;
+            const lvStatusEl = document.getElementById('lvStatusText');
+            if (Math.abs(lvDiffPct) < 0.2) {
+                lvStatusEl.innerHTML = `● แรงดันฝั่งใช้งานสอดคล้องกับเป้าหมายปกติ`;
+                lvStatusEl.className = "text-[11px] md:text-xs font-semibold pt-1 text-emerald-400";
+            } else if (lvDiffPct > 0) {
+                lvStatusEl.innerHTML = `● แรงดันฝั่งใช้งานสูงกว่าพิกัดเป้าหมาย <span class="font-mono font-bold">+${lvDiffPct.toFixed(1)}%</span>`;
+                lvStatusEl.className = "text-[11px] md:text-xs font-semibold pt-1 text-rose-400 animate-pulse";
+            } else {
+                lvStatusEl.innerHTML = `● แรงดันฝั่งใช้งานต่ำกว่าพิกัดเป้าหมาย <span class="font-mono font-bold">${lvDiffPct.toFixed(1)}%</span>`;
+                lvStatusEl.className = "text-[11px] md:text-xs font-semibold pt-1 text-amber-400 animate-pulse";
+            }
+
+            const currentHvRating = hvSteps[selectedTap - 1];
+            const estHvIncoming = v_ll_measured * (currentHvRating / selectedRatedLv);
+            document.getElementById('estHvText').innerText = Math.round(estHvIncoming).toLocaleString();
+
+            const hvDiffPct = ((estHvIncoming - 22000) / 22000) * 100;
+            const hvStatusEl = document.getElementById('hvStatusText');
+            if (Math.abs(hvDiffPct) < 1) {
+                hvStatusEl.innerHTML = `● แรงดันต้นทางใกล้เคียงพิกัดมาตรฐาน (ปกติ)`;
+                hvStatusEl.className = "text-xs font-medium pt-1 text-emerald-400";
+            } else if (hvDiffPct > 0) {
+                hvStatusEl.innerHTML = `● แรงดันต้นทางสูงกว่าปกติ <span class="font-mono font-bold">+${hvDiffPct.toFixed(1)}%</span>`;
+                hvStatusEl.className = "text-xs font-medium pt-1 text-rose-400";
+            } else {
+                hvStatusEl.innerHTML = `● แรงดันต้นทางตกกว่าปกติ <span class="font-mono font-bold">${hvDiffPct.toFixed(1)}%</span>`;
+                hvStatusEl.className = "text-xs font-medium pt-1 text-amber-400";
+            }
+
+            const tbody = document.getElementById('analysisTbody');
+            tbody.innerHTML = '';
+
+            let bestTap = 3;
+            let minDeviation = 9999;
+            let projectedLvAtBest = 0;
+
+            hvSteps.forEach((hvSpec, index) => {
+                const tapNum = index + 1;
+                const currentRatio = hvSpec / selectedRatedLv;
+                const projectedLv = estHvIncoming / currentRatio;
+                const projectedLvn = projectedLv / Math.sqrt(3);
+
+                const deviation = Math.abs(projectedLv - selectedRatedLv);
+                if (deviation < minDeviation) {
+                    minDeviation = deviation;
+                    bestTap = tapNum;
+                    projectedLvAtBest = projectedLv;
+                }
+
+                let statusBadge = '';
+                const percentFromRated = ((projectedLv - selectedRatedLv) / selectedRatedLv) * 100;
+
+                if (Math.abs(percentFromRated) <= 1.5) {
+                    statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/20">Optimal</span>';
+                } else if (percentFromRated > 1.5) {
+                    statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-950/80 text-rose-400 border border-rose-500/20">Over</span>';
+                } else {
+                    statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950/80 text-amber-400 border border-amber-500/20">Under</span>';
+                }
+
+                const row = document.createElement('tr');
+                row.className = "transition-all duration-200 border-b border-slate-900/60";
+
+                let tapCellText = `Tap ${tapNum}`;
+                if (tapNum === selectedTap) {
+                    row.className += " bg-slate-900/40";
+                    tapCellText += ' <span class="text-[9px] bg-slate-800 text-slate-300 font-bold px-1.5 py-0.5 rounded ml-1">Current</span>';
+                }
+
+                row.innerHTML = `
+                    <td class="py-3 px-4 text-center font-bold text-slate-100">${tapCellText}</td>
+                    <td class="py-3 px-3 text-slate-400 font-mono">${hvSpec.toLocaleString()} V</td>
+                    <td class="py-3 px-3 text-center text-slate-300 font-mono font-medium">${currentRatio.toFixed(2)}</td>
+                    <td class="py-2 px-3 text-right">
+                        <div class="font-extrabold font-mono text-white text-[13px] md:text-[14px]">${projectedLv.toFixed(1)} V</div>
+                        <div class="text-[9px] md:text-[10px] font-mono text-slate-400 mt-0.5">${projectedLvn.toFixed(1)} V <span class="text-[8px] text-slate-500">(L-N)</span></div>
+                    </td>
+                    <td class="py-3 px-4 text-center">${statusBadge}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            const rows = tbody.getElementsByTagName('tr');
+            if (bestTap === selectedTap) {
+                rows[bestTap - 1].className = "bg-emerald-950/35 border-l-4 border-l-emerald-500 border-b border-slate-900/60 font-medium";
+            } else {
+                rows[bestTap - 1].className = "bg-cyan-950/20 border-l-4 border-l-cyan-500 border-b border-slate-900/60 font-medium";
+            }
+
+            const recBanner = document.getElementById('recBanner');
+            const recIconBg = document.getElementById('recIconBg');
+            const recIcon = document.getElementById('recIcon');
+            const recActionText = document.getElementById('recActionText');
+            const recDescText = document.getElementById('recDescText');
+            const projectedLvValue = document.getElementById('projectedLvValue');
+            const projectedLvnValue = document.getElementById('projectedLvnValue');
+
+            projectedLvValue.innerText = projectedLvAtBest.toFixed(1) + " V";
+            projectedLvnValue.innerText = (projectedLvAtBest / Math.sqrt(3)).toFixed(1) + " V (L-N)";
+
+            if (bestTap === selectedTap) {
+                recBanner.className = "p-5 md:p-6 rounded-2xl border-2 border-emerald-400 bg-gradient-to-r from-emerald-950 via-emerald-900/40 to-slate-900/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.3)]";
+                recIconBg.className = "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shrink-0 bg-emerald-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.5)]";
+                recIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
+                recActionText.innerText = `คงการตั้งค่าไว้ที่ TAP ${selectedTap}`;
+                recActionText.className = "text-xl md:text-2xl font-black mt-0.5 text-emerald-400 drop-shadow-[0_2px_8px_rgba(16,185,129,0.3)]";
+                recDescText.innerText = `ระดับแรงดันไฟฟ้าในปัจจุบันของระบบเหมาะสมและปลอดภัยที่สุดแล้วเมื่อเทียบกับพิกัดเป้าหมาย ${selectedRatedLv}V`;
+            } else {
+                recBanner.className = "p-5 md:p-6 rounded-2xl border-2 border-cyan-400 bg-gradient-to-r from-cyan-950 via-blue-950/40 to-slate-900/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 shadow-[0_0_40px_rgba(6,182,212,0.45)]";
+                recIconBg.className = "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shrink-0 bg-cyan-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.6)] animate-pulse";
+                recIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>`;
+                recActionText.innerText = `แนะนำสับสวิตช์ไปที่ TAP ${bestTap}`;
+                recActionText.className = "text-xl md:text-2xl font-black mt-0.5 text-cyan-300 drop-shadow-[0_2px_10px_rgba(6,182,212,0.4)]";
+                recDescText.innerText = `แนะนำให้ปรับเพื่อดึงระดับแรงดันไฟฟ้าขึ้นมาให้อยู่ใกล้เคียงกับพิกัดเป้าหมายสูงสุด ป้องกันความเสียหายแก่เครื่องจักรปลายทาง`;
+            }
         }
 
         window.onload = function() {
             calculateAmp();
             calculateSolar();
+            calculateVDrop();
+            updateUI();
         };
     </script>
 </body>
