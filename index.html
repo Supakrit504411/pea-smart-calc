@@ -895,42 +895,59 @@
                 </div>
             </section>
 
-            <section id="voltageDrop" class="tab-content">
+                        <section id="voltageDrop" class="tab-content">
                 <div class="tool-shell">
                     <div class="tool-left">
                         <span class="section-label">Voltage Drop</span>
                         <h2 class="tool-title">คำนวณ Voltage Drop</h2>
-                        <p class="tool-desc">เปลี่ยนหน้าตาให้ทันสมัยขึ้น แต่ยังคงสูตรเดิมของการหาค่าแรงดันตก เปอร์เซ็นต์แรงดันตก และแรงดันปลายทางแบบเดิมทั้งหมด</p>
+                        <p class="tool-desc">คำนวณแรงดันตกจากค่าตารางมาตรฐาน วสท. โดยตรง ด้วยการเลือกชนิดฉนวน ลักษณะสาย และระบบ 1 เฟสหรือ 3 เฟส ให้ตรงกับหน้างานจริง</p>
 
                         <div class="tool-grid">
-                            <div class="field-card">
-                                <label for="vd_source">แรงดันต้นทาง (Source Voltage)</label>
-                                <input type="number" id="vd_source" value="230" placeholder="เช่น 230 หรือ 400" oninput="calculateVDrop()">
-                            </div>
-
-                            <div class="field-card">
-                                <label for="conductorType">ชนิดตัวนำ</label>
-                                <select id="conductorType" onchange="calculateVDrop()">
-                                    <option value="Cu">ทองแดง (Copper)</option>
-                                    <option value="Al">อลูมิเนียม (Aluminum)</option>
-                                </select>
+                            <div class="input-row">
+                                <div class="field-card">
+                                    <label for="vd_insulation">ชนิดฉนวนสาย</label>
+                                    <select id="vd_insulation" onchange="syncVDropSelections(); calculateVDrop()">
+                                        <option value="pvc70">PVC 70°C (IEC 01, VAF)</option>
+                                        <option value="xlpe90">XLPE 90°C (CV)</option>
+                                    </select>
+                                </div>
+                                <div class="field-card">
+                                    <label for="vd_coreType">ลักษณะสาย</label>
+                                    <select id="vd_coreType" onchange="calculateVDrop()">
+                                        <option value="single">แกนเดี่ยว</option>
+                                        <option value="multi">หลายแกน</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="input-row">
                                 <div class="field-card">
-                                    <label for="vd_current">กระแสไฟฟ้า (Amps)</label>
+                                    <label for="vd_phase">ระบบไฟฟ้า</label>
+                                    <select id="vd_phase" onchange="syncVDropSelections(); calculateVDrop()">
+                                        <option value="1ph">1 เฟส</option>
+                                        <option value="3ph">3 เฟส</option>
+                                    </select>
+                                </div>
+                                <div class="field-card">
+                                    <label for="vd_source">แรงดันต้นทาง (V)</label>
+                                    <input type="number" id="vd_source" value="230" placeholder="เช่น 230 หรือ 400" oninput="calculateVDrop()">
+                                </div>
+                            </div>
+
+                            <div class="input-row">
+                                <div class="field-card">
+                                    <label for="vd_current">กระแสไฟฟ้า (A)</label>
                                     <input type="number" id="vd_current" placeholder="เช่น 15" oninput="calculateVDrop()">
                                 </div>
                                 <div class="field-card">
-                                    <label for="vd_distance">ความยาวสาย (เมตร)</label>
-                                    <input type="number" id="vd_distance" placeholder="ระยะทางเดินสาย" oninput="calculateVDrop()">
+                                    <label for="vd_distance">ระยะทางเดินสาย (m)</label>
+                                    <input type="number" id="vd_distance" placeholder="ความยาวทางเดียวตามตาราง" oninput="calculateVDrop()">
                                 </div>
                             </div>
 
                             <div class="field-card">
-                                <label for="vd_cableSize">ขนาดสายไฟ (sq.mm)</label>
+                                <label for="vd_cableSize">ขนาดสายไฟ (ตร.มม.)</label>
                                 <select id="vd_cableSize" onchange="calculateVDrop()">
-                                    <option value="1">1 sq.mm</option>
                                     <option value="1.5">1.5 sq.mm</option>
                                     <option value="2.5" selected>2.5 sq.mm</option>
                                     <option value="4">4 sq.mm</option>
@@ -943,9 +960,6 @@
                                     <option value="70">70 sq.mm</option>
                                     <option value="95">95 sq.mm</option>
                                     <option value="120">120 sq.mm</option>
-                                    <option value="150">150 sq.mm</option>
-                                    <option value="185">185 sq.mm</option>
-                                    <option value="240">240 sq.mm</option>
                                 </select>
                             </div>
 
@@ -959,9 +973,14 @@
                             <div class="result-hero">Voltage Drop Result</div>
                             <div class="stats-grid">
                                 <div class="stat-card">
-                                    <span class="stat-label">วัสดุ</span>
-                                    <span id="matDisplay" class="stat-value" style="font-size:24px;">Copper</span>
-                                    <span class="stat-sub">ชนิดตัวนำที่เลือก</span>
+                                    <span class="stat-label">ตารางอ้างอิง</span>
+                                    <span id="matDisplay" class="stat-value" style="font-size:24px;">PVC 70°C</span>
+                                    <span id="vdRefLabel" class="stat-sub">แกนเดี่ยว / 1 เฟส</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">ค่าจากตาราง</span>
+                                    <span id="vdMvValue" class="stat-value" style="font-size:24px;">0</span>
+                                    <span class="stat-sub">mV/A/m</span>
                                 </div>
                                 <div class="stat-card emphasis">
                                     <span class="stat-label">แรงดันตก</span>
@@ -981,12 +1000,12 @@
                             </div>
 
                             <div class="note">
-                                *คำนวณเทียบกับแรงดันต้นทาง <span id="sourceDisplay">230</span> V
+                                *คำนวณจากสูตร Vd = (mV/A/m × A × m) / 1000 โดยอ้างอิงแรงดันต้นทาง <span id="sourceDisplay">230</span> V
                             </div>
                         </div>
 
                         <div class="danger-box">
-                            ผลลัพธ์ส่วนนี้ยังควรใช้เพื่อช่วยประเมินเบื้องต้นและควรตรวจทานกับเงื่อนไขหน้างานจริง เช่น ระบบ 1 เฟส/3 เฟส วิธีเดินสาย และมาตรฐานการออกแบบที่ใช้อยู่
+                            ใช้ค่าตามตาราง วสท. โดยตรง กรุณาเลือกชนิดฉนวน ลักษณะสาย และระบบไฟฟ้าให้ตรงกับหน้างานจริงก่อนสรุปผล เพื่อหลีกเลี่ยงการใช้คอลัมน์อ้างอิงผิดประเภท
                         </div>
                     </div>
                 </div>
@@ -1261,33 +1280,67 @@
             document.getElementById('solarMoney').innerText = saving.toLocaleString();
         }
 
+                const vdReferenceTable = {
+            pvc70: {
+                label: "PVC 70°C (IEC 01, VAF)",
+                single: { "1ph": { 1.5: 29.0, 2.5: 18.0, 4: 11.0, 6: 7.3, 10: 4.4, 16: 2.8, 25: 1.81, 35: 1.33, 50: 1.0, 70: 0.71, 95: 0.56, 120: 0.48 }, "3ph": { 1.5: 25.0, 2.5: 15.5, 4: 9.5, 6: 6.4, 10: 3.8, 16: 2.4, 25: 1.52, 35: 1.11, 50: 0.85, 70: 0.61, 95: 0.47, 120: 0.4 } },
+                multi: { "1ph": { 1.5: 29.0, 2.5: 18.0, 4: 11.0, 6: 7.3, 10: 4.4, 16: 2.8, 25: 1.75, 35: 1.25, 50: 0.93, 70: 0.65, 95: 0.5, 120: 0.41 }, "3ph": { 1.5: 25.0, 2.5: 15.5, 4: 9.5, 6: 6.4, 10: 3.8, 16: 2.4, 25: 1.5, 35: 1.1, 50: 0.8, 70: 0.57, 95: 0.44, 120: 0.36 } }
+            },
+            xlpe90: {
+                label: "XLPE 90°C (CV)",
+                single: { "1ph": { 1.5: 30.0, 2.5: 18.5, 4: 11.5, 6: 7.6, 10: 4.6, 16: 2.9, 25: 1.85, 35: 1.35, 50: 1.04, 70: 0.75, 95: 0.58, 120: 0.49 }, "3ph": { 1.5: 26.0, 2.5: 16.0, 4: 9.9, 6: 6.6, 10: 4.0, 16: 2.5, 25: 1.58, 35: 1.15, 50: 0.87, 70: 0.62, 95: 0.46, 120: 0.38 } },
+                multi: { "1ph": { 1.5: 30.0, 2.5: 18.5, 4: 11.5, 6: 7.6, 10: 4.6, 16: 2.9, 25: 1.85, 35: 1.35, 50: 0.99, 70: 0.68, 95: 0.52, 120: 0.43 }, "3ph": { 1.5: 26.0, 2.5: 16.0, 4: 9.9, 6: 6.6, 10: 4.0, 16: 2.5, 25: 1.6, 35: 1.15, 50: 0.86, 70: 0.6, 95: 0.45, 120: 0.37 } }
+            }
+        };
+
+        function syncVDropSelections() {
+            const phase = document.getElementById('vd_phase').value;
+            const sourceInput = document.getElementById('vd_source');
+            const recommendedVoltage = phase === '3ph' ? 400 : 230;
+            const currentValue = parseFloat(sourceInput.value);
+            if (isNaN(currentValue) || currentValue === 230 || currentValue === 400) {
+                sourceInput.value = recommendedVoltage;
+            }
+        }
+
         function calculateVDrop() {
             const I = parseFloat(document.getElementById('vd_current').value);
             const L = parseFloat(document.getElementById('vd_distance').value);
             const A = parseFloat(document.getElementById('vd_cableSize').value);
-            const type = document.getElementById('conductorType').value;
+            const insulation = document.getElementById('vd_insulation').value;
+            const coreType = document.getElementById('vd_coreType').value;
+            const phase = document.getElementById('vd_phase').value;
             let V_source = parseFloat(document.getElementById('vd_source').value);
-            if (isNaN(V_source)) V_source = 230;
-            let rho = 0.0178;
-            let matName = "ทองแดง (Copper)";
-            if (type === 'Al') {
-                rho = 0.028;
-                matName = "อลูมิเนียม (Aluminum)";
-            }
+            if (isNaN(V_source)) V_source = phase === '3ph' ? 400 : 230;
+
             const resultDiv = document.getElementById('result-vdrop');
-            if (isNaN(I) || isNaN(L)) {
+            if (isNaN(I) || isNaN(L) || isNaN(A)) {
                 resultDiv.style.display = 'none';
                 return;
             }
-            const vDrop = (2 * L * I * rho) / A;
+
+            const selectedFamily = vdReferenceTable[insulation];
+            const mvPerAmpPerMeter = selectedFamily?.[coreType]?.[phase]?.[A];
+            if (typeof mvPerAmpPerMeter !== 'number') {
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            const vDrop = (mvPerAmpPerMeter * I * L) / 1000;
             const percent = (vDrop / V_source) * 100;
             const vEnd = V_source - vDrop;
-            document.getElementById('matDisplay').innerText = matName;
+            const phaseLabel = phase === '3ph' ? '3 เฟส' : '1 เฟส';
+            const coreLabel = coreType === 'single' ? 'แกนเดี่ยว' : 'หลายแกน';
+
+            document.getElementById('matDisplay').innerText = selectedFamily.label;
+            document.getElementById('vdRefLabel').innerText = `${coreLabel} / ${phaseLabel}`;
+            document.getElementById('vdMvValue').innerText = mvPerAmpPerMeter.toFixed(2);
             document.getElementById('sourceDisplay').innerText = V_source;
             document.getElementById('vDropVal').innerText = vDrop.toFixed(2);
             document.getElementById('vDropPercent').innerText = percent.toFixed(2);
             document.getElementById('vEnd').innerText = vEnd.toFixed(2);
             resultDiv.style.display = 'block';
+
             const percentEl = document.getElementById('vDropPercent');
             if (percent > 5) {
                 percentEl.style.color = "#fb7185";
@@ -1491,6 +1544,7 @@
         window.onload = function() {
             calculateAmp();
             calculateSolar();
+            syncVDropSelections();
             calculateVDrop();
             updateUI();
         };
